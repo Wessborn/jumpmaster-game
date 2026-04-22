@@ -2,51 +2,54 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Cosmic Collector - космический сборщик</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Tap & Stack - построй башню!</title>
     <style>
         * {
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
         }
 
         body {
             margin: 0;
             min-height: 100vh;
-            background: radial-gradient(ellipse at center, #0a0a2a 0%, #000000 100%);
+            background: linear-gradient(145deg, #1a1a2e 0%, #0f0f1a 100%);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Segoe UI', 'Orbitron', monospace;
-            overflow: hidden;
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+            touch-action: manipulation;
         }
 
-        .game-wrapper {
-            background: linear-gradient(135deg, #1a1a3e, #0f0f2a);
-            border-radius: 48px;
+        .game-container {
+            background: rgba(30, 30, 50, 0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 56px;
             padding: 20px;
-            box-shadow: 0 30px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
-            border: 1px solid rgba(100,150,255,0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,215,0,0.3);
         }
 
         canvas {
             display: block;
             margin: 0 auto;
-            border-radius: 24px;
-            box-shadow: 0 0 30px rgba(0,100,255,0.3);
+            border-radius: 28px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.5);
             cursor: pointer;
+            touch-action: manipulation;
         }
 
-        .stats-panel {
+        .info-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-top: 20px;
-            padding: 12px 30px;
-            background: #0a0a1f;
+            padding: 12px 28px;
+            background: #0f0f1e;
             border-radius: 60px;
-            gap: 40px;
-            border: 1px solid #2a4a8a;
+            gap: 35px;
+            border-bottom: 2px solid #ffd966;
         }
 
         .stat {
@@ -54,78 +57,77 @@
         }
 
         .stat-label {
-            font-size: 11px;
+            font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 2px;
-            color: #7a9bcb;
-            font-weight: bold;
+            color: #9b9bcb;
+            font-weight: 600;
         }
 
         .stat-value {
-            font-size: 34px;
-            font-weight: bold;
-            color: #f0c674;
-            text-shadow: 0 0 8px #ffaa33;
-            font-family: 'Orbitron', monospace;
+            font-size: 32px;
+            font-weight: 800;
+            color: #ffd966;
+            text-shadow: 0 0 6px #ffaa33;
+            line-height: 1;
         }
 
         .best-value {
-            color: #6effb0;
-            text-shadow: 0 0 5px #00ff80;
+            color: #7effb0;
+            text-shadow: 0 0 4px #00ff99;
         }
 
         button {
-            background: linear-gradient(135deg, #3a6ea5, #1e3a5f);
+            background: linear-gradient(135deg, #4a4a8a, #2a2a5a);
             border: none;
             padding: 10px 32px;
-            border-radius: 40px;
+            border-radius: 50px;
             font-weight: bold;
             font-size: 16px;
-            color: #f0f4ff;
+            color: #ffefc0;
             cursor: pointer;
-            font-family: 'Orbitron', monospace;
             transition: 0.07s linear;
-            box-shadow: 0 5px 0 #0f2a4a;
+            box-shadow: 0 5px 0 #1a1a3a;
+            font-family: inherit;
         }
 
         button:active {
             transform: translateY(2px);
-            box-shadow: 0 2px 0 #0f2a4a;
+            box-shadow: 0 2px 0 #1a1a3a;
         }
 
-        .hint {
+        .controls {
             margin-top: 16px;
             text-align: center;
-            color: #8ab3ff;
+            color: #a0a0d0;
             font-size: 12px;
-            font-weight: bold;
-            letter-spacing: 1px;
+            font-weight: 500;
         }
 
-        @media (max-width: 580px) {
-            .stat-value { font-size: 24px; }
-            button { padding: 6px 22px; font-size: 13px; }
-            .game-wrapper { padding: 12px; }
+        @media (max-width: 560px) {
+            .stat-value { font-size: 26px; }
+            button { padding: 6px 24px; font-size: 14px; }
+            .game-container { padding: 12px; }
         }
     </style>
 </head>
 <body>
 <div>
-    <div class="game-wrapper">
-        <canvas id="gameCanvas" width="700" height="500"></canvas>
-        <div class="stats-panel">
+    <div class="game-container">
+        <canvas id="gameCanvas" width="380" height="600"></canvas>
+        <div class="info-bar">
             <div class="stat">
-                <div class="stat-label">✨ ЗВЁЗДЫ</div>
-                <div class="stat-value" id="scoreValue">0</div>
+                <div class="stat-label">🏆 ВЫСОТА</div>
+                <div class="stat-value" id="scoreDisplay">0</div>
             </div>
             <div class="stat">
-                <div class="stat-label">🏆 РЕКОРД</div>
-                <div class="stat-value best-value" id="bestValue">0</div>
+                <div class="stat-label">⭐ РЕКОРД</div>
+                <div class="stat-value best-value" id="bestDisplay">0</div>
             </div>
-            <button id="resetGameBtn">🔄 НОВАЯ ИГРА</button>
+            <button id="restartButton">🔄 НАЧАТЬ</button>
         </div>
-        <div class="hint">
-            🖱️ ДВИГАЙ МЫШЬЮ / ПАЛЬЦЕМ — ЛОВИ ЗВЁЗДЫ | ОСТОРОЖНО — МЕТЕОРИТЫ! 💥
+        <div class="controls">
+            👆 НАЖМИ / КОСНИСЬ — ПОСТАВЬ БЛОК! 🧱
         </div>
     </div>
 </div>
@@ -133,350 +135,331 @@
 <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    const scoreSpan = document.getElementById('scoreValue');
-    const bestSpan = document.getElementById('bestValue');
-    const resetBtn = document.getElementById('resetGameBtn');
+    const scoreSpan = document.getElementById('scoreDisplay');
+    const bestSpan = document.getElementById('bestDisplay');
+    const restartBtn = document.getElementById('restartButton');
 
-    // Размеры
-    const W = 700, H = 500;
-    let gameRunning = true;
+    // Параметры игры
+    const W = 380, H = 600;
+    let gameActive = true;
     let score = 0;
-    let bestScore = 0;
-    let frame = 0;
+    let best = 0;
     
-    // Корабль игрока
-    let player = {
-        x: W/2,
-        y: H - 70,
-        radius: 16,
-        speed: 6.5
+    // Блоки
+    let blocks = [];
+    let currentBlock = {
+        x: 0,
+        y: 0,
+        width: 60,
+        height: 22,
+        dir: 1,
+        speed: 2.8
     };
     
-    // Звёзды (сбор)
-    let stars = [];
-    // Метеориты (опасность)
-    let meteors = [];
+    let lastBlockWidth = 60;
+    let lastBlockX = (W - 60) / 2;
+    let nextBlockY = H - 65;
+    let isWaitingForTap = true;
     
-    // Эффекты частиц
+    // Анимация частиц
     let particles = [];
+    
+    // Цветовая схема
+    const colors = [
+        '#FF6B6B', '#4ECDC4', '#FFE66D', '#FF8C42', '#6C63FF', '#FF4D6D', '#00B4D8'
+    ];
     
     // Загрузка рекорда
     function loadBest() {
-        const saved = localStorage.getItem('cosmicCollectorBest');
+        const saved = localStorage.getItem('tapStackBest');
         if (saved && !isNaN(parseInt(saved))) {
-            bestScore = parseInt(saved);
-            bestSpan.innerText = bestScore;
+            best = parseInt(saved);
+            bestSpan.innerText = best;
         }
     }
     
     function saveBest() {
-        if (score > bestScore) {
-            bestScore = score;
-            bestSpan.innerText = bestScore;
-            localStorage.setItem('cosmicCollectorBest', bestScore);
+        if (score > best) {
+            best = score;
+            bestSpan.innerText = best;
+            localStorage.setItem('tapStackBest', best);
         }
     }
     
-    // Сброс игры
-    function resetGame() {
-        gameRunning = true;
-        score = 0;
-        scoreSpan.innerText = '0';
-        stars = [];
-        meteors = [];
-        particles = [];
-        frame = 0;
-        // начальные звёзды
-        for(let i = 0; i < 8; i++) {
-            spawnStar();
-        }
-        saveBest();
-    }
-    
-    // Создание звезды
-    function spawnStar() {
-        stars.push({
-            x: Math.random() * (W - 30) + 15,
-            y: Math.random() * (H - 150) + 20,
-            radius: 5 + Math.random() * 4,
-            value: 1,
-            twinkle: Math.random() * Math.PI * 2
-        });
-    }
-    
-    // Создание метеорита
-    function spawnMeteor() {
-        meteors.push({
-            x: Math.random() * (W - 50) + 25,
-            y: -30,
-            radius: 10 + Math.random() * 8,
-            speedY: 2 + Math.random() * 3.5,
-            speedX: (Math.random() - 0.5) * 1.5,
-            rotation: 0
-        });
-    }
-    
-    // Частицы при сборе
-    function addParticles(x, y, color) {
-        for(let i = 0; i < 8; i++) {
+    // Добавление частиц
+    function addParticles(x, y, color, count = 12) {
+        for (let i = 0; i < count; i++) {
             particles.push({
-                x: x, y: y,
+                x: x + (Math.random() - 0.5) * 25,
+                y: y + (Math.random() - 0.5) * 20,
                 vx: (Math.random() - 0.5) * 4,
                 vy: (Math.random() - 0.5) * 4 - 2,
                 life: 1,
                 color: color,
-                size: 3 + Math.random() * 4
+                size: 3 + Math.random() * 5
             });
         }
     }
     
-    // Обновление игры
-    function updateGame() {
-        if (!gameRunning) return;
+    // Сброс игры
+    function restartGame() {
+        gameActive = true;
+        score = 0;
+        scoreSpan.innerText = '0';
+        blocks = [];
+        lastBlockWidth = 62;
+        lastBlockX = (W - 62) / 2;
+        nextBlockY = H - 68;
+        isWaitingForTap = true;
+        particles = [];
         
-        // Движение мыши / касания (наведение)
-        // в обработчиках событий, здесь просто проверка
+        currentBlock.width = 62;
+        currentBlock.height = 24;
+        currentBlock.x = (W - currentBlock.width) / 2;
+        currentBlock.y = nextBlockY;
+        currentBlock.dir = 1;
+        currentBlock.speed = 2.5;
         
-        // Спавн звёзд
-        if (stars.length < 12 && Math.random() < 0.02) {
-            spawnStar();
+        saveBest();
+    }
+    
+    // Основная логика: размещение блока
+    function placeBlock() {
+        if (!gameActive) return;
+        
+        const newX = currentBlock.x;
+        const prevX = lastBlockX;
+        const prevW = lastBlockWidth;
+        
+        // Проверка промаха (мимо)
+        if (newX + currentBlock.width < prevX || newX > prevX + prevW) {
+            gameActive = false;
+            addParticles(currentBlock.x + currentBlock.width/2, currentBlock.y, '#FF4444', 20);
+            return;
         }
         
-        // Спавн метеоритов (со временем всё чаще)
-        let meteorChance = 0.008 + score / 1500;
-        if (Math.random() < meteorChance && meteors.length < 12) {
-            spawnMeteor();
+        // Вычисляем пересечение (новый блок)
+        let overlapLeft = Math.max(newX, prevX);
+        let overlapRight = Math.min(newX + currentBlock.width, prevX + prevW);
+        let newWidth = overlapRight - overlapLeft;
+        
+        if (newWidth <= 2) {
+            gameActive = false;
+            addParticles(currentBlock.x + currentBlock.width/2, currentBlock.y, '#FF4444', 20);
+            return;
         }
         
-        // Обновление звёзд (мерцание)
-        for (let i = 0; i < stars.length; i++) {
-            const s = stars[i];
-            s.twinkle += 0.05;
-            // Проверка сбора (коллизия с игроком)
-            const dx = player.x - s.x;
-            const dy = player.y - s.y;
-            const dist = Math.hypot(dx, dy);
-            if (dist < player.radius + s.radius) {
-                // собираем звезду
-                score++;
-                scoreSpan.innerText = score;
-                addParticles(s.x, s.y, '#FFD966');
-                stars.splice(i,1);
+        // Успех! добавляем блок в массив
+        const blockColor = colors[blocks.length % colors.length];
+        blocks.push({
+            x: overlapLeft,
+            y: nextBlockY,
+            width: newWidth,
+            height: currentBlock.height,
+            color: blockColor
+        });
+        
+        addParticles(overlapLeft + newWidth/2, nextBlockY, blockColor, 15);
+        
+        // Увеличиваем счёт
+        score++;
+        scoreSpan.innerText = score;
+        saveBest();
+        
+        // Обновляем последний блок
+        lastBlockX = overlapLeft;
+        lastBlockWidth = newWidth;
+        nextBlockY -= currentBlock.height + 1;
+        
+        // Создаём новый движущийся блок
+        currentBlock.width = newWidth;
+        currentBlock.y = nextBlockY;
+        
+        // Увеличиваем скорость со временем
+        let newSpeed = 2.5 + score * 0.07;
+        currentBlock.speed = Math.min(newSpeed, 8);
+        
+        // Начальная позиция (движение вправо или влево)
+        if (Math.random() > 0.5) {
+            currentBlock.x = 0;
+            currentBlock.dir = 1;
+        } else {
+            currentBlock.x = W - currentBlock.width;
+            currentBlock.dir = -1;
+        }
+        
+        isWaitingForTap = true;
+        
+        // Проверка победы (если башня достигла верха)
+        if (nextBlockY <= 40) {
+            gameActive = false;
+            addParticles(W/2, H/2, '#FFD700', 50);
+        }
+    }
+    
+    // Обновление положения текущего блока
+    function updateMovingBlock() {
+        if (!gameActive || isWaitingForTap) return;
+        
+        currentBlock.x += currentBlock.speed * currentBlock.dir;
+        
+        if (currentBlock.x <= 0) {
+            currentBlock.x = 0;
+            currentBlock.dir = 1;
+        }
+        if (currentBlock.x + currentBlock.width >= W) {
+            currentBlock.x = W - currentBlock.width;
+            currentBlock.dir = -1;
+        }
+    }
+    
+    // Обработка тапа
+    function handleTap() {
+        if (!gameActive) return;
+        if (isWaitingForTap) {
+            isWaitingForTap = false;
+        } else {
+            placeBlock();
+        }
+    }
+    
+    // Обновление частиц
+    function updateParticles() {
+        for (let i = 0; i < particles.length; i++) {
+            particles[i].x += particles[i].vx;
+            particles[i].y += particles[i].vy;
+            particles[i].life -= 0.025;
+            if (particles[i].life <= 0 || particles[i].y > H + 50) {
+                particles.splice(i, 1);
                 i--;
-                saveBest();
-                continue;
-            }
-            // звёзды медленно дрейфуют
-            s.y += 0.15;
-            if (s.y > H + 30) {
-                stars.splice(i,1);
-                i--;
             }
         }
-        
-        // Обновление метеоритов
-        for (let i = 0; i < meteors.length; i++) {
-            const m = meteors[i];
-            m.y += m.speedY;
-            m.x += m.speedX;
-            m.rotation += 0.1;
-            
-            // коллизия с игроком
-            const dx = player.x - m.x;
-            const dy = player.y - m.y;
-            if (Math.hypot(dx, dy) < player.radius + m.radius) {
-                gameRunning = false;
-                addParticles(m.x, m.y, '#ff4444');
-                meteors.splice(i,1);
-                break;
-            }
-            
-            // удаление за экраном
-            if (m.y > H + 80 || m.x < -80 || m.x > W + 80) {
-                meteors.splice(i,1);
-                i--;
-            }
-        }
-        
-        // Обновление частиц
-        for (let i=0; i<particles.length; i++) {
-            const p = particles[i];
-            p.x += p.vx;
-            p.y += p.vy;
-            p.life -= 0.02;
-            if (p.life <= 0 || p.y > H+50) {
-                particles.splice(i,1);
-                i--;
-            }
-        }
-        
-        frame++;
     }
     
     // Отрисовка
     function draw() {
         ctx.clearRect(0, 0, W, H);
         
-        // Звёздное поле фон
-        ctx.fillStyle = '#050510';
+        // Фон (градиент)
+        const grad = ctx.createLinearGradient(0, 0, 0, H);
+        grad.addColorStop(0, '#1e1e3a');
+        grad.addColorStop(1, '#0d0d1a');
+        ctx.fillStyle = grad;
         ctx.fillRect(0, 0, W, H);
-        for(let i=0; i<150; i++) {
-            if(i%2 === 0) continue;
-            ctx.fillStyle = `rgba(255,255,200,${0.2+Math.sin(Date.now()*0.001+i)*0.1})`;
+        
+        // Сетка (эффект глубины)
+        ctx.strokeStyle = 'rgba(100,100,180,0.15)';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i < H; i += 30) {
             ctx.beginPath();
-            ctx.arc( (i*131)%W, (i*253)%H, 1.5, 0, Math.PI*2);
-            ctx.fill();
+            ctx.moveTo(0, i);
+            ctx.lineTo(W, i);
+            ctx.stroke();
         }
         
-        // Туманности
-        ctx.fillStyle = 'rgba(80,40,120,0.2)';
-        ctx.beginPath();
-        ctx.ellipse(120, 300, 200, 100, 0, 0, Math.PI*2);
-        ctx.fill();
-        ctx.fillStyle = 'rgba(30,80,150,0.2)';
-        ctx.beginPath();
-        ctx.ellipse(550, 150, 180, 120, 0, 0, Math.PI*2);
-        ctx.fill();
-        
-        // Звёзды (сборные)
-        for (const s of stars) {
-            const glow = 0.6 + Math.sin(s.twinkle) * 0.4;
-            ctx.shadowBlur = 12;
-            ctx.shadowColor = '#ffcc55';
-            ctx.fillStyle = `rgba(255, 215, 100, ${glow})`;
-            ctx.beginPath();
-            ctx.arc(s.x, s.y, s.radius, 0, Math.PI*2);
-            ctx.fill();
-            ctx.fillStyle = '#fff5b0';
-            ctx.beginPath();
-            ctx.arc(s.x-1, s.y-1, s.radius*0.4, 0, Math.PI*2);
-            ctx.fill();
-        }
-        
-        // Метеориты
-        for (const m of meteors) {
+        // Отрисовка поставленных блоков
+        for (let i = 0; i < blocks.length; i++) {
+            const b = blocks[i];
             ctx.shadowBlur = 6;
-            ctx.shadowColor = '#ff5500';
-            ctx.fillStyle = '#8b5a2b';
-            ctx.beginPath();
-            ctx.ellipse(m.x, m.y, m.radius, m.radius*0.7, m.rotation, 0, Math.PI*2);
-            ctx.fill();
-            ctx.fillStyle = '#b87c3a';
-            ctx.beginPath();
-            ctx.ellipse(m.x-2, m.y-1, m.radius*0.5, m.radius*0.4, m.rotation, 0, Math.PI*2);
-            ctx.fill();
-            ctx.fillStyle = '#5a3a1a';
-            for(let i=0;i<3;i++) {
-                ctx.fillRect(m.x-4+i*4, m.y+2, 2, 4);
-            }
+            ctx.shadowColor = 'rgba(0,0,0,0.4)';
+            ctx.fillStyle = b.color;
+            ctx.fillRect(b.x, b.y, b.width, b.height - 1);
+            ctx.fillStyle = 'rgba(255,255,255,0.25)';
+            ctx.fillRect(b.x + 2, b.y + 2, b.width - 4, 4);
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.fillRect(b.x, b.y + b.height - 4, b.width, 3);
+        }
+        
+        // Текущий движущийся блок
+        if (gameActive && isWaitingForTap === false) {
+            ctx.shadowBlur = 12;
+            ctx.shadowColor = '#ffaa55';
+            ctx.fillStyle = '#FFB347';
+            ctx.fillRect(currentBlock.x, currentBlock.y, currentBlock.width, currentBlock.height - 1);
+            ctx.fillStyle = 'rgba(255,240,180,0.5)';
+            ctx.fillRect(currentBlock.x + 3, currentBlock.y + 2, currentBlock.width - 6, 5);
+        } else if (gameActive && isWaitingForTap) {
+            // Блок ожидания (полупрозрачный)
+            ctx.fillStyle = 'rgba(255,180,80,0.5)';
+            ctx.fillRect(currentBlock.x, currentBlock.y, currentBlock.width, currentBlock.height - 1);
+            ctx.fillStyle = 'rgba(255,255,200,0.3)';
+            ctx.fillRect(currentBlock.x + 2, currentBlock.y + 2, currentBlock.width - 4, 4);
         }
         
         // Частицы
         for (const p of particles) {
-            ctx.fillStyle = p.color;
             ctx.globalAlpha = p.life;
-            ctx.fillRect(p.x-2, p.y-2, p.size, p.size);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(p.x - 2, p.y - 2, p.size, p.size);
         }
         ctx.globalAlpha = 1;
-        
-        // Корабль игрока (звездолёт)
-        ctx.shadowBlur = 12;
-        ctx.shadowColor = '#00a6ff';
-        ctx.fillStyle = '#4cb4ff';
-        ctx.beginPath();
-        ctx.moveTo(player.x, player.y - 18);
-        ctx.lineTo(player.x + 18, player.y + 6);
-        ctx.lineTo(player.x + 8, player.y + 2);
-        ctx.lineTo(player.x + 8, player.y + 12);
-        ctx.lineTo(player.x, player.y + 8);
-        ctx.lineTo(player.x - 8, player.y + 12);
-        ctx.lineTo(player.x - 8, player.y + 2);
-        ctx.lineTo(player.x - 18, player.y + 6);
-        ctx.fill();
-        ctx.fillStyle = '#ffaa44';
-        ctx.beginPath();
-        ctx.arc(player.x, player.y-4, 6, 0, Math.PI*2);
-        ctx.fill();
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(player.x-2, player.y-7, 2, 0, Math.PI*2);
-        ctx.fill();
-        
-        // Двигатель
-        ctx.fillStyle = '#ff884d';
-        ctx.beginPath();
-        ctx.moveTo(player.x-6, player.y+12);
-        ctx.lineTo(player.x, player.y+22);
-        ctx.lineTo(player.x+6, player.y+12);
-        ctx.fill();
-        
         ctx.shadowBlur = 0;
         
-        // Game Over
-        if (!gameRunning) {
-            ctx.fillStyle = 'rgba(0,0,0,0.8)';
+        // Линия отсечения (верх)
+        ctx.beginPath();
+        ctx.strokeStyle = '#ffd966';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 8]);
+        ctx.moveTo(0, 42);
+        ctx.lineTo(W, 42);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        
+        // Текст Game Over
+        if (!gameActive) {
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
             ctx.fillRect(0, 0, W, H);
-            ctx.fillStyle = '#ffcc66';
-            ctx.font = 'bold 36 "Orbitron"';
+            ctx.font = 'bold 28 "Segoe UI"';
+            ctx.fillStyle = '#FFD966';
             ctx.shadowBlur = 0;
-            ctx.fillText('GAME OVER', W/2-130, H/2-40);
-            ctx.font = '20 monospace';
-            ctx.fillStyle = '#aaffdd';
-            ctx.fillText('нажми "НОВАЯ ИГРА"', W/2-130, H/2+40);
+            ctx.fillText('GAME OVER', W/2 - 100, H/2 - 45);
+            ctx.font = 'bold 18 monospace';
+            ctx.fillStyle = '#ddddff';
+            ctx.fillText('нажми СТАРТ', W/2 - 68, H/2 + 25);
         }
         
-        // Счёт на экране
-        ctx.font = 'bold 26 "Orbitron"';
-        ctx.fillStyle = '#ffe6aa';
-        ctx.fillText('⭐ '+score, W-100, 55);
+        // Отображение счёта сверху
+        ctx.font = 'bold 18 monospace';
+        ctx.fillStyle = '#cceeff';
+        ctx.fillText(`БЛОКОВ: ${score}`, 15, 32);
     }
     
-    // Обработка движения мыши/пальца
-    function handleMove(e) {
-        if (!gameRunning) return;
-        const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        let clientX;
-        if (e.touches) {
-            clientX = e.touches[0].clientX;
-        } else {
-            clientX = e.clientX;
-        }
-        let canvasX = (clientX - rect.left) * scaleX;
-        canvasX = Math.min(Math.max(canvasX, player.radius + 10), W - player.radius - 10);
-        player.x = canvasX;
-    }
-    
-    // Цикл анимации
-    function gameLoop() {
-        updateGame();
+    // Анимация
+    function update() {
+        updateMovingBlock();
+        updateParticles();
         draw();
-        requestAnimationFrame(gameLoop);
+        requestAnimationFrame(update);
     }
     
     // Инициализация
     function init() {
         loadBest();
-        resetGame();
-        gameLoop();
+        restartGame();
+        update();
         
-        canvas.addEventListener('mousemove', handleMove);
-        canvas.addEventListener('touchmove', (e) => {
+        canvas.addEventListener('click', (e) => {
             e.preventDefault();
-            handleMove(e);
+            handleTap();
         });
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            handleMove(e);
+            handleTap();
         });
-        resetBtn.addEventListener('click', () => {
-            resetGame();
-            gameRunning = true;
-            stars = [];
-            meteors = [];
-            for(let i=0;i<10;i++) spawnStar();
+        restartBtn.addEventListener('click', () => {
+            restartGame();
+            gameActive = true;
+            isWaitingForTap = true;
+            blocks = [];
+            lastBlockWidth = 62;
+            lastBlockX = (W - 62) / 2;
+            nextBlockY = H - 68;
+            currentBlock.width = 62;
+            currentBlock.x = (W - 62) / 2;
+            currentBlock.y = nextBlockY;
             score = 0;
             scoreSpan.innerText = '0';
+            saveBest();
         });
     }
     
